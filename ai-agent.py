@@ -1,24 +1,40 @@
 # from groq import Groq
+# import os
+# from dotenv import load_dotenv
 
-# client = Groq(api_key="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")
+# # Load environment variables
+# load_dotenv()
 
-# chat_completion = client.chat.completions.create(
-#     messages=[
-#         {
-#             "role": "user",
-#             "content": "Explain the importance of fast language models",
-#         }
-#     ],
-#     model="llama-3.3-70b-versatile",
-# )
-
-# print(chat_completion.choices[0].message.content)
+# # Get Groq API key from environment variable
+# groq_api_key = os.getenv('GROQ_API_KEY')
+# if groq_api_key:
+#     client = Groq(api_key=groq_api_key)
+#     chat_completion = client.chat.completions.create(
+#         messages=[
+#             {
+#                 "role": "user",
+#                 "content": "Explain the importance of fast language models",
+#             }
+#         ],
+#         model="llama-3.3-70b-versatile",
+#     )
+#     print(chat_completion.choices[0].message.content)
 
 from google import genai
 from google.genai import types
 import markdown
+import os
+from dotenv import load_dotenv
 
-client = genai.Client(api_key="AIzaSyC6ruGAJ2Xeaa3ZqAZsDfdYEUxl6P75MmM")
+# Load environment variables
+load_dotenv()
+
+# Get API key from environment variable
+api_key = os.getenv('GOOGLE_API_KEY')
+if not api_key:
+    raise ValueError("No GOOGLE_API_KEY found in environment variables")
+
+client = genai.Client(api_key=api_key)
 
 model_config = types.GenerateContentConfig(
     max_output_tokens=50, 
