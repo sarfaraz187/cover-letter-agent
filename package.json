@@ -1,0 +1,14 @@
+{
+  "name": "ai-chat-application-root",
+  "version": "1.0.0",
+  "description": "AI Chat Application with React frontend and Flask backend",
+  "scripts": {
+    "start:frontend": "cd ai-chat-ui && npm start",
+    "start:backend": "python3 flask_api.py",
+    "dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "install:all": "npm install && cd ai-chat-ui && npm install"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 
