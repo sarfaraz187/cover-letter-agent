@@ -88,6 +88,7 @@ def cover_letter():
             4. Includes a specific example of how I overcame a challenge in a previous role
             5. Emphasizes my unique selling points 
             6. Explains why I'm passionate about joining this specific company
+            8. Add a personal touch. 
             7. Mentions I am available to relocate with a valid work permit and have fluent English and intermediate German
             8. Limit to 350 words maximum
             

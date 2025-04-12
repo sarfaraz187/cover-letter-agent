@@ -1,15 +1,30 @@
 # AI Cover Letter Generator
 
-An AI-powered application that generates personalized cover letters based on your CV and job descriptions.
+An AI-powered tool that generates customized cover letters based on job descriptions and your CV.
 
 ## Features
 
-- **PDF CV Integration**: Automatically extracts text from your CV in PDF format
-- **Tailored Cover Letters**: Generates professional cover letters that match job requirements
-- **Simple Interface**: Easy-to-use UI for entering job details
-- **Copy to Clipboard**: Quick copy function for your generated cover letters
+- **Intelligent Cover Letter Generation**: Automatically creates tailored cover letters based on job descriptions
+- **CV Integration**: Uses your existing CV to personalize cover letters
+- **PDF Export**: Download professional-looking PDFs of your cover letters
+- **Editable Results**: Modify the generated content before downloading
+- **Responsive Design**: Works on desktop and mobile devices
+
+## Tech Stack
+
+- **Frontend**: React with TypeScript, Tailwind CSS
+- **Backend**: Flask (Python)
+- **AI Integration**: Google's Gemini AI
 
 ## Setup
+
+### Prerequisites
+
+- Node.js (v14+)
+- Python (v3.8+)
+- Google Gemini AI API key
+
+### Installation
 
 1. Clone the repository:
    ```
@@ -17,56 +32,65 @@ An AI-powered application that generates personalized cover letters based on you
    cd ai-cover-letter-generator
    ```
 
-2. Install backend dependencies:
+2. Setup environment variables:
+   
+   Create a `.env` file in the root directory with the following content:
+   ```
+   GEMINI_API_KEY=your_gemini_api_key_here
+   ```
+
+3. Set up the backend:
    ```
    pip install -r requirements.txt
    ```
 
-3. Set up your environment variables by creating a `.env` file:
-   ```
-   GOOGLE_API_KEY=your_google_gemini_api_key
-   FLASK_ENV=development
-   FLASK_DEBUG=1
-   ```
-
-4. Place your CV in PDF format in the root directory with the name `mohammed_sarfaraz_cv.pdf` (or update the file path in `flask_api.py`)
-
-5. Install frontend dependencies:
+4. Set up the frontend:
    ```
    cd ai-chat-ui
    npm install
    ```
 
-## Running the Application
+5. Add your CV (must be named `mohammed_sarfaraz_cv.pdf`) to the server root directory.
 
-You can use the provided scripts to run both the backend and frontend:
+### Running the Application
+
+Use the provided scripts to start the application:
 
 ```
 ./restart.sh
 ```
 
-Or run them individually:
+This will start both the Flask backend server and React frontend.
 
-- Backend: `python3 flask_api.py`
-- Frontend: `cd ai-chat-ui && npm start`
+- Backend will be available at: http://localhost:5001
+- Frontend will be available at: http://localhost:3000
 
-Visit `http://localhost:3000` to use the application.
+To stop the application:
 
-## How to Use
+```
+./stop.sh
+```
 
-1. Enter the position you're applying for
-2. Add the company name
-3. (Optional) Include details about the company 
-4. Paste the job description
-5. Click "Generate Cover Letter"
-6. Copy the generated cover letter to your clipboard
+## Usage
 
-## Technologies Used
+1. Enter the job details in the form:
+   - Position
+   - Company name
+   - About the company (optional)
+   - Job description
 
-- **Frontend**: React, TypeScript, Tailwind CSS
-- **Backend**: Flask (Python)
-- **AI**: Google Gemini AI
-- **PDF Processing**: PyPDF2
+2. Click "Generate Cover Letter"
+
+3. The AI will generate a tailored cover letter based on your CV and the job description
+
+4. Edit the cover letter as needed
+
+5. Download it as a PDF or copy to clipboard
+
+## Troubleshooting
+
+- If you encounter a "CV Loading Error," ensure your CV file (mohammed_sarfaraz_cv.pdf) is in the root directory of the server.
+- For API connection issues, check that your GEMINI_API_KEY is correctly set in the .env file.
 
 ## License
 
