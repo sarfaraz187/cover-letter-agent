@@ -16,16 +16,37 @@ An AI-powered tool that generates customized cover letters based on job descript
 - **Backend**: Flask (Python)
 - **AI Integration**: Google's Gemini AI
 
-## Setup
+## Running the Application
 
-### Prerequisites
+### Option 1: Using Docker (Recommended)
 
+Prerequisites:
+- Docker and Docker Compose installed
+
+Steps:
+1. Clone the repository
+2. Make sure your CV file is in the root directory (default: `mohammed_sarfaraz_cv.pdf`)
+3. Run the application:
+   ```
+   ./docker-start.sh
+   ```
+4. The application will be available at:
+   - Frontend: http://localhost:3000
+   - Backend: http://localhost:5001/api/health
+
+To stop the application:
+```
+./docker-stop.sh
+```
+
+### Option 2: Manual Setup
+
+Prerequisites:
 - Node.js (v14+)
 - Python (v3.8+)
 - Google Gemini AI API key
 
-### Installation
-
+Steps:
 1. Clone the repository:
    ```
    git clone https://github.com/yourusername/ai-cover-letter-generator.git
@@ -53,7 +74,7 @@ An AI-powered tool that generates customized cover letters based on job descript
 
 5. Add your CV file to the server root directory. The filename should match what you've specified in the CV_FILENAME environment variable (defaults to `cv.pdf`).
 
-### Running the Application
+### Running the Application Manually
 
 Use the provided scripts to start the application:
 
