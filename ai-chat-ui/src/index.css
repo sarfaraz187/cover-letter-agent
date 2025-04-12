@@ -9,8 +9,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #343541;
-  color: white;
+  background-color: #f7f8fa;
+  color: #333;
   height: 100vh;
 }
 
@@ -25,16 +25,16 @@ code {
 }
 
 ::-webkit-scrollbar-track {
-  background: #40414F;
+  background: #f1f1f1;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #565869;
+  background: #c1c1c1;
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6E6E80;
+  background: #a1a1a1;
 }
 
 /* Typing animation */
@@ -89,4 +89,29 @@ code {
     transform: scale(1);
     opacity: 0.7;
   }
+}
+
+/* Ensure form elements have proper contrast */
+input, textarea, select {
+  color: #333 !important; 
+  background-color: white !important;
+}
+
+/* Fix placeholder color for better visibility */
+::placeholder {
+  color: #888 !important;
+  opacity: 1;
+}
+
+/* Cover letter textarea customization */
+.editable-cover-letter {
+  font-family: 'Georgia', serif;
+  line-height: 1.6;
+  font-size: 15px;
+  background-color: white;
+}
+
+.editable-cover-letter:focus {
+  outline: none;
+  box-shadow: none;
 }

@@ -1,27 +1,87 @@
 // Set the API base URL based on environment
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
 /**
- * Send a message to the AI and get a response
+ * Fetch CV data from the server
  * 
- * @param message The user's message
- * @returns The AI's response
+ * @returns The CV data as text
  */
-export const sendMessage = async (message: string): Promise<string> => {
+export const fetchCvData = async (): Promise<string> => {
   try {
-    console.log(`API Request - Sending message to ${API_BASE_URL}/chat:`, message);
-    const response = await fetch(`${API_BASE_URL}/chat`, {
-      method: 'POST',
+    console.log(`API Request - Fetching CV data`);
+    
+    const response = await fetch(`${API_BASE_URL}/get-cv`, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ message }),
     });
 
     console.log('API Response - Status:', response.status);
     
     const data = await response.json();
-    console.log('API Response - Data:', data);
+    
+    if (!response.ok) {
+      throw new Error(data.error || `Error: ${response.status}`);
+    }
+
+    return data.content;
+  } catch (error) {
+    console.error('API Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch CV data. Please try again later.';
+    throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Generate a cover letter using the AI based on CV and job description
+ * 
+ * @param jobDescription The job description or position
+ * @param cvData The user's CV/resume data
+ * @returns The generated cover letter
+ */
+export const generateCoverLetter = async (
+  jobDescription: string,
+  cvData: string
+): Promise<string> => {
+  try {
+    console.log(`API Request - Generating cover letter...`);
+    
+    // Check if the backend is reachable first
+    try {
+      const healthCheck = await fetch(`${API_BASE_URL}/health`, { 
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      
+      if (!healthCheck.ok) {
+        console.error('Health check failed:', await healthCheck.text());
+        throw new Error('Backend API is not accessible. Please check if the server is running.');
+      }
+    } catch (healthError) {
+      console.error('Health check error:', healthError);
+      throw new Error('Failed to connect to the backend. Please check if the server is running and accessible.');
+    }
+    
+    // Proceed with the cover letter generation API call
+    const response = await fetch(`${API_BASE_URL}/cover-letter`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        message: jobDescription,
+        cv_data: cvData
+      }),
+    });
+
+    console.log('API Response - Status:', response.status);
+    
+    const data = await response.json();
+    console.log('API Response - Data (truncated):', {
+      ...data,
+      response: data.response?.substring(0, 100) + '...'
+    });
     
     if (!response.ok) {
       throw new Error(data.error || `Error: ${response.status}`);
@@ -30,37 +90,7 @@ export const sendMessage = async (message: string): Promise<string> => {
     return data.response;
   } catch (error) {
     console.error('API Error:', error);
-    throw error;
-  }
-};
-
-/**
- * Initialize a new chat session
- * 
- * @returns The session ID
- */
-export const createChatSession = async (): Promise<string> => {
-  try {
-    console.log(`API Request - Creating session at ${API_BASE_URL}/sessions`);
-    const response = await fetch(`${API_BASE_URL}/sessions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    console.log('API Response - Status:', response.status);
-    
-    const data = await response.json();
-    console.log('API Response - Data:', data);
-    
-    if (!response.ok) {
-      throw new Error(data.error || `Error: ${response.status}`);
-    }
-
-    return data.sessionId;
-  } catch (error) {
-    console.error('API Error:', error);
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : 'Failed to generate cover letter. Please try again later.';
+    throw new Error(errorMessage);
   }
 }; 

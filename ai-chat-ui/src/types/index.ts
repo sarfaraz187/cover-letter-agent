@@ -1,13 +1,11 @@
-export interface Message {
-  id: string;
-  content: string;
-  role: 'user' | 'assistant';
-  timestamp: Date;
+export interface CoverLetterData {
+  position: string;
+  companyName: string;
+  aboutCompany: string;
+  jobDescription: string;
 }
 
-export interface ChatSession {
-  id: string;
-  title: string;
-  messages: Message[];
-  createdAt: Date;
+export interface ApiResponse {
+  response: string;
+  error?: string;
 } 

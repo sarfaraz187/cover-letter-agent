@@ -1,106 +1,73 @@
-# AI Chat Application
+# AI Cover Letter Generator
 
-A ChatGPT-like interface built with React and connected to a Flask backend that uses the Gemini AI API.
+An AI-powered application that generates personalized cover letters based on your CV and job descriptions.
 
-## Project Structure
+## Features
 
-- `ai-chat-ui`: React frontend with a ChatGPT-like interface
-- `flask_api.py`: Flask backend API that connects to Gemini AI
-- `requirements.txt`: Python dependencies for the Flask backend
+- **PDF CV Integration**: Automatically extracts text from your CV in PDF format
+- **Tailored Cover Letters**: Generates professional cover letters that match job requirements
+- **Simple Interface**: Easy-to-use UI for entering job details
+- **Copy to Clipboard**: Quick copy function for your generated cover letters
 
-## Setup Instructions
+## Setup
 
-### Prerequisites
-
-- Node.js and npm (for React frontend)
-- Python 3.7+ (for Flask backend)
-
-### Environment Setup
-
-1. Create environment files:
-   - For the backend: Copy `.env.example` to `.env` and add your Gemini API key
-   - For the frontend (optional): Create `ai-chat-ui/.env` for custom API URL
-
-```bash
-# Backend environment setup
-cp .env.example .env
-# Edit .env and add your actual Gemini API key
-```
-
-### Frontend Setup
-
-1. Navigate to the React app directory:
-   ```bash
-   cd ai-chat-ui
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/ai-cover-letter-generator.git
+   cd ai-cover-letter-generator
    ```
 
-2. Install dependencies:
-   ```bash
-   npm install
+2. Install backend dependencies:
    ```
-
-3. Start the development server:
-   ```bash
-   npm start
-   ```
-   This will run the app on [http://localhost:3000](http://localhost:3000)
-
-### Backend Setup
-
-1. Create a virtual environment (recommended):
-   ```bash
-   python -m venv venv
-   ```
-
-2. Activate the virtual environment:
-   - On Windows:
-     ```bash
-     venv\Scripts\activate
-     ```
-   - On macOS/Linux:
-     ```bash
-     source venv/bin/activate
-     ```
-
-3. Install dependencies:
-   ```bash
    pip install -r requirements.txt
    ```
 
-4. Start the Flask API:
-   ```bash
-   python flask_api.py
+3. Set up your environment variables by creating a `.env` file:
    ```
-   This will run the API on [http://localhost:5000](http://localhost:5000)
+   GOOGLE_API_KEY=your_google_gemini_api_key
+   FLASK_ENV=development
+   FLASK_DEBUG=1
+   ```
 
-### Running Both Frontend and Backend
+4. Place your CV in PDF format in the root directory with the name `mohammed_sarfaraz_cv.pdf` (or update the file path in `flask_api.py`)
 
-You can start both services with a single command:
-```bash
-npm run dev
+5. Install frontend dependencies:
+   ```
+   cd ai-chat-ui
+   npm install
+   ```
+
+## Running the Application
+
+You can use the provided scripts to run both the backend and frontend:
+
+```
+./restart.sh
 ```
 
-## API Endpoints
+Or run them individually:
 
-- `POST /api/chat`: Send a message to the AI and get a response
-  - Request body: `{ "message": "Your message here" }`
-  - Response: `{ "response": "AI response here" }`
+- Backend: `python3 flask_api.py`
+- Frontend: `cd ai-chat-ui && npm start`
 
-- `POST /api/sessions`: Create a new chat session
-  - Response: `{ "sessionId": "session-uuid" }`
+Visit `http://localhost:3000` to use the application.
 
-- `DELETE /api/sessions/<session_id>`: Delete a chat session
-  - Response: `{ "success": true }`
+## How to Use
 
-- `GET /api/health`: Health check endpoint
-  - Response: `{ "status": "ok", "api_key_configured": true }`
+1. Enter the position you're applying for
+2. Add the company name
+3. (Optional) Include details about the company 
+4. Paste the job description
+5. Click "Generate Cover Letter"
+6. Copy the generated cover letter to your clipboard
 
-## Debugging
+## Technologies Used
 
-If you encounter issues with the application, refer to the `DEBUG.md` file for troubleshooting steps.
+- **Frontend**: React, TypeScript, Tailwind CSS
+- **Backend**: Flask (Python)
+- **AI**: Google Gemini AI
+- **PDF Processing**: PyPDF2
 
-## Notes
+## License
 
-- The UI is designed to mimic the ChatGPT interface
-- The backend connects to the Gemini AI API from Google
-- API keys are stored in environment variables for security 
+MIT 
