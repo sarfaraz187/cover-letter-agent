@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import uuid
 from google import generativeai as genai
 import logging
 import os
@@ -31,6 +30,10 @@ api_key = os.getenv('GOOGLE_API_KEY')
 if not api_key:
     logger.error("No API key found. Please set the GOOGLE_API_KEY environment variable.")
     raise ValueError("No API key found. Please set the GOOGLE_API_KEY environment variable.")
+
+# Get CV filename from environment variable or use default
+cv_filename = os.getenv('CV_FILENAME', 'cv.pdf')
+logger.info(f"Using CV filename: {cv_filename}")
 
 # Initialize Gemini AI with your API key
 logger.info("Configuring Gemini AI...")
@@ -144,12 +147,12 @@ def get_cv():
         return '', 204
     
     logger.info("CV request received")
-    cv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mohammed_sarfaraz_cv.pdf")
+    cv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), cv_filename)
     
     try:
         if not os.path.exists(cv_path):
             logger.error(f"CV file not found at {cv_path}")
-            return jsonify({'error': 'CV file not found'}), 404
+            return jsonify({'error': f'CV file not found. Please ensure {cv_filename} is in the root directory.'}), 404
         
         # Extract text from PDF
         cv_text = ""

@@ -11,7 +11,7 @@ const CvErrorAlert: React.FC<CvErrorAlertProps> = ({ error }) => {
     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
       <p className="font-bold">CV Loading Error</p>
       <p>{error}</p>
-      <p className="mt-2">Please ensure your CV file (mohammed_sarfaraz_cv.pdf) is in the root directory of the server.</p>
+      <p className="mt-2">Please ensure your CV file is in the root directory of the server as specified in the .env file.</p>
     </div>
   );
 };

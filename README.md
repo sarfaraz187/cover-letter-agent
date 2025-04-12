@@ -37,6 +37,7 @@ An AI-powered tool that generates customized cover letters based on job descript
    Create a `.env` file in the root directory with the following content:
    ```
    GEMINI_API_KEY=your_gemini_api_key_here
+   CV_FILENAME=cv.pdf
    ```
 
 3. Set up the backend:
@@ -50,7 +51,7 @@ An AI-powered tool that generates customized cover letters based on job descript
    npm install
    ```
 
-5. Add your CV (must be named `mohammed_sarfaraz_cv.pdf`) to the server root directory.
+5. Add your CV file to the server root directory. The filename should match what you've specified in the CV_FILENAME environment variable (defaults to `cv.pdf`).
 
 ### Running the Application
 
@@ -89,7 +90,7 @@ To stop the application:
 
 ## Troubleshooting
 
-- If you encounter a "CV Loading Error," ensure your CV file (mohammed_sarfaraz_cv.pdf) is in the root directory of the server.
+- If you encounter a "CV Loading Error," ensure your CV file (as specified in CV_FILENAME) is in the root directory of the server.
 - For API connection issues, check that your GEMINI_API_KEY is correctly set in the .env file.
 
 ## License

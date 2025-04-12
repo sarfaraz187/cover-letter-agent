@@ -1,17 +1,30 @@
 #!/bin/bash
 
+# Load environment variables
+set -a
+source .env
+set +a
+
+# Check if the CV file exists
+if [ -f "$CV_FILENAME" ]; then
+    echo "Found CV file: $CV_FILENAME"
+else
+    echo "Warning: CV file '$CV_FILENAME' not found in root directory." 
+    echo "Make sure to add your CV file as specified in the .env file."
+fi
+
 # Start the Flask backend
 echo "Starting Flask backend..."
 cd api
 python -m venv venv
 source venv/bin/activate
 pip install -r ../requirements.txt
-python app.py &
+python ../flask_api.py &
 BACKEND_PID=$!
 
 # Start the React frontend
 echo "Starting React frontend..."
-cd ../frontend
+cd ../ai-chat-ui
 npm install
 npm start &
 FRONTEND_PID=$!
