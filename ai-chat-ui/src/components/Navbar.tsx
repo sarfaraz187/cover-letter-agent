@@ -3,19 +3,50 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { Link } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
-  const { isAuthenticated, loginWithRedirect, logout, user } = useAuth0();
+  const { isAuthenticated, loginWithRedirect, logout, user, isLoading, error } = useAuth0();
+
+  const handleLogin = async () => {
+    try {
+      console.log('Initiating login flow...');
+      await loginWithRedirect({
+        appState: {
+          returnTo: window.location.pathname
+        }
+      });
+    } catch (err) {
+      console.error('Login error:', err);
+    }
+  };
+
+  const handleLogout = () => {
+    logout({ 
+      logoutParams: { 
+        returnTo: window.location.origin
+      }
+    });
+  };
+
+  if (error) {
+    console.error('Auth0 error:', error);
+  }
 
   return (
     <nav className="bg-gray-800 text-white p-4">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center">
-            <span className="text-xl font-bold">Cover Letter Generator</span>
+            <img 
+              src="https://msarfaraz.blob.core.windows.net/portfolio-assets/mohammed.svg" 
+              alt="Logo" 
+              className="h-12 w-auto mr-2" 
+            />
           </Link>
         </div>
         
         <div className="flex items-center space-x-4">
-          {isAuthenticated ? (
+          {isLoading ? (
+            <div className="px-3 py-1.5">Loading...</div>
+          ) : isAuthenticated ? (
             <>
               <div className="flex items-center mr-4">
                 {user?.picture && (
@@ -27,20 +58,23 @@ const Navbar: React.FC = () => {
                 )}
                 <span className="hidden md:inline">{user?.name}</span>
               </div>
-              <Link to="/generator" className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 transition">
+              <Link 
+                to="/generator" 
+                className="px-3 py-1.5 border border-white text-white rounded hover:bg-white hover:text-gray-800 transition duration-200"
+              >
                 Cover Letter Generator
               </Link>
               <button
-                onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
-                className="px-4 py-2 bg-red-600 rounded hover:bg-red-700 transition"
+                onClick={handleLogout}
+                className="px-3 py-1.5 border border-red-400 text-red-400 rounded hover:bg-red-500 hover:text-white hover:border-red-500 transition duration-200"
               >
                 Log Out
               </button>
             </>
           ) : (
             <button
-              onClick={() => loginWithRedirect()}
-              className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 transition"
+              onClick={handleLogin}
+              className="px-3 py-1.5 border border-white text-white rounded hover:bg-white hover:text-gray-800 transition duration-200"
             >
               Log In
             </button>
