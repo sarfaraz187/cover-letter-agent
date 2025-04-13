@@ -17,7 +17,11 @@ An AI-powered tool that generates customized cover letters based on job descript
 - **AI Integration**: Google's Gemini AI
 
 ## Preview
+
+1. Home Page
 <img width="1440" alt="Screenshot 2025-04-13 at 9 43 01 PM" src="https://github.com/user-attachments/assets/245df06d-f27b-4e79-ac74-8c4c3044dd97" />
+
+2. Cover Letter Generator Page
 <img width="1437" alt="Screenshot 2025-04-13 at 9 42 54 PM" src="https://github.com/user-attachments/assets/42225586-d1e1-4135-96d8-0dae9cb8a8ff" />
 
 
