@@ -45,7 +45,7 @@ const Navbar: React.FC = () => {
         
         <div className="flex items-center space-x-4">
           {isLoading ? (
-            <div className="px-3 py-1.5">Loading...</div>
+            <div className="px-4 py-2">Loading...</div>
           ) : isAuthenticated ? (
             <>
               <div className="flex items-center mr-4">
@@ -60,13 +60,13 @@ const Navbar: React.FC = () => {
               </div>
               <Link 
                 to="/generator" 
-                className="px-3 py-1.5 border border-white text-white rounded hover:bg-white hover:text-gray-800 transition duration-200"
+                className="px-4 py-2 border border-white text-white rounded hover:bg-white hover:text-gray-800 transition duration-200"
               >
                 Cover Letter Generator
               </Link>
               <button
                 onClick={handleLogout}
-                className="px-3 py-1.5 border border-red-400 text-red-400 rounded hover:bg-red-500 hover:text-white hover:border-red-500 transition duration-200"
+                className="px-4 py-2 border border-red-400 text-red-400 rounded hover:bg-red-500 hover:text-white hover:border-red-500 transition duration-200"
               >
                 Log Out
               </button>
@@ -74,7 +74,7 @@ const Navbar: React.FC = () => {
           ) : (
             <button
               onClick={handleLogin}
-              className="px-3 py-1.5 border border-white text-white rounded hover:bg-white hover:text-gray-800 transition duration-200"
+              className="px-4 py-2 border border-white text-white rounded hover:bg-white hover:text-gray-800 transition duration-200"
             >
               Log In
             </button>

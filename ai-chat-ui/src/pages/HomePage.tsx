@@ -32,20 +32,20 @@ const HomePage: React.FC = () => {
           
           <div className="mb-12">
             {isLoading ? (
-              <div className="px-5 py-2.5 bg-gray-300 text-gray-700 rounded-lg text-lg font-medium inline-block">
+              <div className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg text-lg font-medium inline-block">
                 Loading...
               </div>
             ) : isAuthenticated ? (
               <Link 
                 to="/generator" 
-                className="px-5 py-2.5 border-2 border-gray-800 text-gray-800 rounded-lg text-lg font-medium hover:bg-gray-800 hover:text-white transition duration-300 shadow-lg"
+                className="px-6 py-3 border-2 border-gray-800 text-gray-800 rounded-lg text-lg font-medium hover:bg-gray-800 hover:text-white transition duration-300 shadow-lg"
               >
                 Go to Cover Letter Generator
               </Link>
             ) : (
               <button 
                 onClick={handleLogin}
-                className="px-5 py-2.5 border-2 border-gray-800 text-gray-800 rounded-lg text-lg font-medium hover:bg-gray-800 hover:text-white transition duration-300 shadow-lg"
+                className="px-6 py-3 border-2 border-gray-800 text-gray-800 rounded-lg text-lg font-medium hover:bg-gray-800 hover:text-white transition duration-300 shadow-lg"
               >
                 Log In to Get Started
               </button>
