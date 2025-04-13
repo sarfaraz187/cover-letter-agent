@@ -148,7 +148,7 @@ def get_cv():
     
     logger.info("CV request received")
     cv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), cv_filename)
-    
+    logger.info("~~~~~~~~~~~~", cv_path)
     try:
         if not os.path.exists(cv_path):
             logger.error(f"CV file not found at {cv_path}")

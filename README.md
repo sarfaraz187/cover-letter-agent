@@ -25,7 +25,7 @@ Prerequisites:
 
 Steps:
 1. Clone the repository
-2. Make sure your CV file is in the root directory (default: `mohammed_sarfaraz_cv.pdf`)
+2. Make sure your CV file is in the root directory (default: `cv.pdf`)
 3. Run the application:
    ```
    ./docker-start.sh
