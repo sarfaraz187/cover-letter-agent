@@ -1,4 +1,5 @@
 // Set the API base URL based on environment
+// Try to use the variable from the root .env file if available
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
 /**

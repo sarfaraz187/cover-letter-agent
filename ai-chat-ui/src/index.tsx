@@ -7,14 +7,40 @@ import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
+// Auth0 configuration - use environment variables from root directory
+const domain = process.env.REACT_APP_AUTH0_DOMAIN || '';
+const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID || '';
+const redirectUri = window.location.origin;
+
+// Only log in development mode
+if (process.env.NODE_ENV === 'development') {
+  console.log('Auth0 Configuration being used:', {
+    domain: domain ? 'Configured' : 'Missing',
+    clientId: clientId ? 'Configured' : 'Missing',
+    redirectUri
+  });
+
+  // Additional check for .env location
+  console.log('Environment variable source check:', {
+    isDevelopment: process.env.NODE_ENV === 'development',
+    apiUrl: process.env.REACT_APP_API_URL,
+    hasRootEnv: Boolean(process.env.REACT_APP_AUTH0_DOMAIN)
+  });
+}
+
+// Ensure required environment variables are set
+if (!domain || !clientId) {
+  console.error('Auth0 configuration is incomplete. Please check your environment variables in the root .env file.');
+}
+
 root.render(
   <React.StrictMode>
      <Auth0Provider
-      domain={process.env.REACT_APP_AUTH0_DOMAIN || 'dev-yc4l5d7lx1gos13l.us.auth0.com'}
-      clientId={process.env.REACT_APP_AUTH0_CLIENT_ID || ''}
+      domain={domain}
+      clientId={clientId}
       authorizationParams={{
-        redirect_uri: window.location.origin,
-        scope: "sarfarazmohammed187@gmail.com"
+        redirect_uri: redirectUri,
+        scope: "openid profile email"
       }}
       cacheLocation="localstorage"
     >
