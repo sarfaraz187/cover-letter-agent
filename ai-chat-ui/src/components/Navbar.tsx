@@ -58,12 +58,6 @@ const Navbar: React.FC = () => {
                 )}
                 <span className="hidden md:inline">{user?.name}</span>
               </div>
-              <Link 
-                to="/generator" 
-                className="px-4 py-2 border border-white text-white rounded hover:bg-white hover:text-gray-800 transition duration-200"
-              >
-                Cover Letter Generator
-              </Link>
               <button
                 onClick={handleLogout}
                 className="px-4 py-2 border border-red-400 text-red-400 rounded hover:bg-red-500 hover:text-white hover:border-red-500 transition duration-200"

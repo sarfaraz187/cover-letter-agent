@@ -120,7 +120,7 @@ Job Description: ${jobDescription}
 
   return (
     <div className="flex flex-col h-full max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold mb-5 text-gray-800">AI Cover Letter Agent</h1>
+      <h1 className="text-2xl font-bold mb-5 text-gray-800">AI Cover Letter Generator</h1>
       
       <CvErrorAlert error={cvError} />
       

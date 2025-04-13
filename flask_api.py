@@ -66,7 +66,7 @@ def cover_letter():
         generation_config = {
             "max_output_tokens": 1024,
             "temperature": 0.2,
-            "top_p": 0.95
+            "top_p": 0.90
         }
         
         # Prepare content based on request type
@@ -93,7 +93,7 @@ def cover_letter():
             6. Explains why I'm passionate about joining this specific company
             8. Add a personal touch. 
             7. Mentions I am available to relocate with a valid work permit and have fluent English and intermediate German
-            8. Limit to 350 words maximum
+            8. Limit to 380 words maximum
             
             Structure the letter professionally with proper greeting and closing.
             """
@@ -205,6 +205,48 @@ def generate_cover_letter():
         prompt = f"""
         I need to write a cover letter for a job application. Here's information about me:
         
+        Example Cover Letter:
+
+        Dear Hiring Team,
+        When I reduced customer onboarding time by 45% through an intuitive internal application at
+        Onestoptransformation, I witnessed firsthand how thoughtful frontend engineering directly impacts user
+        experience. This powerful connection between code and human wellbeing aligns perfectly with
+        Gymondo's mission of helping people lead healthier lives through accessible digital fitness solutions.
+
+        My frontend development journey includes:
+        ● Professional experience with React, Vue.js, TypeScript and JavaScript
+        ● Designing UI components and establishing TypeScript-based npm libraries at SevenCs
+        ● Implementing robust validation and testing mechanisms for reliable application performance
+        ● Integrating and consuming REST APIs across multiple production applications
+        ● Collaborating with cross-functional teams to translate user needs into technical solutions
+
+        At SevenCs, I developed MyRA Web, a digital routing service enhancing maritime navigation, where I
+        created robust UI components while maintaining a keen focus on user experience. This project
+        demanded clean, maintainable code that could reliably display complex real-time data—skills directly
+        transferable to developing engaging fitness interfaces at Gymondo.
+
+        During my time at Learnship GmbH, I contributed to feature development for multiple platforms while
+        modernizing legacy systems. This experience taught me to balance innovation with
+        maintainability—creating code that not only works but scales efficiently. I became adept at refactoring
+        existing codebases while adding new functionality, a valuable skill for evolving applications.
+        My internship at Onestoptransformation provided hands-on experience setting up CI/CD pipelines and
+        writing comprehensive test cases, demonstrating my commitment to code quality and standardized
+        practices. I embraced peer code reviews as opportunities for growth, refining my ability to both give and
+        receive constructive feedback—an essential aspect of Gymondo's collaborative development culture.
+
+        I'm particularly excited about Gymondo's commitment to continuous learning and growth, as I
+        consistently seek out opportunities to expand my technical knowledge and stay current with frontend
+        innovations. Your collaborative approach to development, including code reviews and team
+        problem-solving, resonates with my own development philosophy of learning through shared expertise.
+        
+        I am available to relocate as needed, hold a valid work permit, and am fluent in English with intermediate
+        German proficiency. I would welcome the opportunity to discuss how my technical skills and passion for
+        creating impactful user experiences could contribute to Gymondo's mission of helping people lead
+        healthier lives through engaging digital fitness solutions.
+
+        Sincerely,
+        Mohammed Sarfaraz
+
         My CV/Resume:
         {cv_data}
         
@@ -228,10 +270,7 @@ def generate_cover_letter():
         """
         
         # Get a response from Gemini
-        response = model.generate_content(
-            contents=prompt,
-            generation_config=generation_config
-        )
+        response = model.generate_content(contents=prompt, generation_config=generation_config)
         
         # Handle different response formats
         response_text = ""
