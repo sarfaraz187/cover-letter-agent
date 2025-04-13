@@ -1,17 +1,36 @@
 #!/bin/bash
 
-echo "Stopping servers..."
+echo "Stopping AI Cover Letter Generator servers..."
 
-# Stop Flask backend
-echo "Stopping Flask backend..."
-pkill -f "python3 flask_api.py" || {
-  echo "No Flask server running."
-}
+# Check if the PID files exist and kill the processes
+if [ -f ".pids.backend" ]; then
+  BACKEND_PID=$(cat .pids.backend)
+  if kill -0 $BACKEND_PID 2>/dev/null; then
+    echo "Stopping backend server (PID: $BACKEND_PID)..."
+    kill $BACKEND_PID
+  else
+    echo "Backend server is not running."
+  fi
+  rm .pids.backend
+else
+  # Fallback method: use pkill
+  echo "No PID file found for backend. Attempting to stop with pkill..."
+  pkill -f "python flask_api.py" || true
+fi
 
-# Stop React frontend
-echo "Stopping React frontend..."
-pkill -f "node.*start" || {
-  echo "No React server running."
-}
+if [ -f ".pids.frontend" ]; then
+  FRONTEND_PID=$(cat .pids.frontend)
+  if kill -0 $FRONTEND_PID 2>/dev/null; then
+    echo "Stopping frontend server (PID: $FRONTEND_PID)..."
+    kill $FRONTEND_PID
+  else
+    echo "Frontend server is not running."
+  fi
+  rm .pids.frontend
+else
+  # Fallback method: use pkill
+  echo "No PID file found for frontend. Attempting to stop with pkill..."
+  pkill -f "node.*start" || true
+fi
 
-echo "All servers stopped!" 
+echo "Servers stopped." 

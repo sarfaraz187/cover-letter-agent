@@ -1,27 +1,38 @@
 #!/bin/bash
 
 echo "Stopping any existing servers..."
-pkill -f "python3 flask_api.py" || true
-pkill -f "node.*start" || true
+./stop.sh
 
+# Make sure environment variables are available
+if [ ! -f ".env" ]; then
+  echo "Error: .env file missing in the root directory"
+  echo "Please create a .env file with the necessary environment variables"
+  exit 1
+fi
+
+# Start the Flask backend
 echo "Starting Flask backend..."
-python3 flask_api.py > flask.log 2>&1 &
-FLASK_PID=$!
-echo "Flask server started with PID: $FLASK_PID"
+python flask_api.py &
+BACKEND_PID=$!
 
+# Wait for Flask to initialize
 echo "Waiting for Flask server to initialize (5 seconds)..."
 sleep 5
 
+# Test if the Flask server is running
 echo "Testing Flask server..."
-curl -s http://localhost:5001/api/health || {
-  echo "Error: Flask server is not responding. Check flask.log for details."
-  exit 1
-}
+RESPONSE=$(curl -s http://localhost:5001/api/health)
+echo $RESPONSE
 
+# Start the React frontend
 echo "Starting React frontend..."
-cd ai-chat-ui && npm start > ../react.log 2>&1 &
-REACT_PID=$!
-echo "React server started with PID: $REACT_PID"
+cd ai-chat-ui
+npm start > ../react.log 2>&1 &
+FRONTEND_PID=$!
+
+# Save the PIDs to our PID file for the stop script
+echo "$BACKEND_PID" > ../.pids.backend
+echo "$FRONTEND_PID" > ../.pids.frontend
 
 echo "Servers successfully started!"
 echo "- Backend: http://localhost:5001/api/health"
