@@ -1,30 +1,30 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { generateCoverLetter, fetchCvData } from '../services/api';
-import { generateCoverLetterPDF } from '../services/pdfService';
-import FormSection from './FormSection';
-import CoverLetterOutput from './CoverLetterOutput';
-import CvErrorAlert from './CvErrorAlert';
+import React, { useState, useEffect, useRef } from "react";
+import { generateCoverLetter, fetchCvData } from "../services/api";
+import { generateCoverLetterPDF } from "../services/pdfService";
+import FormSection from "./FormSection";
+import CoverLetterOutput from "./CoverLetterOutput";
+import CvErrorAlert from "./CvErrorAlert";
 
 const CoverLetterGenerator: React.FC = () => {
   // Form state
-  const [jobDescription, setJobDescription] = useState('');
-  const [companyName, setCompanyName] = useState('');
-  const [position, setPosition] = useState('');
-  const [aboutCompany, setAboutCompany] = useState('');
-  
+  const [jobDescription, setJobDescription] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [position, setPosition] = useState("");
+  const [aboutCompany, setAboutCompany] = useState("");
+
   // Content state
-  const [cvContent, setCvContent] = useState('');
-  const [coverLetter, setCoverLetter] = useState('');
-  const [editableCoverLetter, setEditableCoverLetter] = useState('');
-  
+  const [cvContent, setCvContent] = useState("");
+  const [coverLetter, setCoverLetter] = useState("");
+  const [editableCoverLetter, setEditableCoverLetter] = useState("");
+
   // UI state
   const [isLoading, setIsLoading] = useState(false);
   const [isCvLoading, setIsCvLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [cvError, setCvError] = useState('');
+  const [error, setError] = useState("");
+  const [cvError, setCvError] = useState("");
   const [copyNotification, setCopyNotification] = useState(false);
   const [downloadNotification, setDownloadNotification] = useState(false);
-  
+
   // Refs
   const coverLetterRef = useRef<HTMLTextAreaElement>(null);
 
@@ -32,15 +32,15 @@ const CoverLetterGenerator: React.FC = () => {
   useEffect(() => {
     const loadCvData = async () => {
       setIsCvLoading(true);
-      setCvError('');
-      
+      setCvError("");
+
       try {
         const data = await fetchCvData();
         setCvContent(data);
-        console.log('CV data loaded successfully');
+        console.log("CV data loaded successfully");
       } catch (err) {
-        console.error('CV loading error:', err);
-        setCvError(err instanceof Error ? err.message : 'Failed to load CV data');
+        console.error("CV loading error:", err);
+        setCvError(err instanceof Error ? err.message : "Failed to load CV data");
       } finally {
         setIsCvLoading(false);
       }
@@ -58,33 +58,33 @@ const CoverLetterGenerator: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!jobDescription.trim() || !position.trim() || !companyName.trim()) {
-      setError('Please provide job description, position, and company name');
+      setError("Please provide job description, position, and company name");
       return;
     }
-    
+
     if (!cvContent) {
-      setError('CV data is not available. Please refresh the page or contact support.');
+      setError("CV data is not available. Please refresh the page or contact support.");
       return;
     }
-    
+
     setIsLoading(true);
-    setError('');
-    
+    setError("");
+
     try {
       // Combine data for API request
       const formattedJobDescription = `
-Position: ${position}
-Company: ${companyName}
-About Company: ${aboutCompany}
-Job Description: ${jobDescription}
+        Position: ${position}
+        Company: ${companyName}
+        About Company: ${aboutCompany}
+        Job Description: ${jobDescription}
       `;
-      
+
       const result = await generateCoverLetter(formattedJobDescription, cvContent);
       setCoverLetter(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -106,27 +106,19 @@ Job Description: ${jobDescription}
     if (!coverLetterRef.current || !editableCoverLetter) return;
     
     setDownloadNotification(true);
-    
-    generateCoverLetterPDF({
-      position,
-      companyName,
-      content: editableCoverLetter
-    });
-    
-    setTimeout(() => {
-      setDownloadNotification(false);
-    }, 2000);
+    generateCoverLetterPDF({ position, companyName, content: editableCoverLetter });
+    setTimeout(() => setDownloadNotification(false), 2000);
   };
 
   return (
     <div className="flex flex-col h-full max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold mb-5 text-gray-800">AI Cover Letter Generator</h1>
-      
+
       <CvErrorAlert error={cvError} />
-      
+
       <div className="grid grid-cols-1 md:grid-cols-10 gap-6 mb-2 min-h-[600px]">
         <div className="md:col-span-4 flex flex-col">
-          <FormSection 
+          <FormSection
             position={position}
             companyName={companyName}
             aboutCompany={aboutCompany}
@@ -141,9 +133,9 @@ Job Description: ${jobDescription}
             onSubmit={handleSubmit}
           />
         </div>
-        
+
         <div className="md:col-span-6 flex flex-col">
-          <CoverLetterOutput 
+          <CoverLetterOutput
             coverLetter={coverLetter}
             editableCoverLetter={editableCoverLetter}
             isLoading={isLoading}
@@ -160,4 +152,4 @@ Job Description: ${jobDescription}
   );
 };
 
-export default CoverLetterGenerator; 
+export default CoverLetterGenerator;

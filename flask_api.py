@@ -74,26 +74,44 @@ class GeminiEmbeddingFunction(EmbeddingFunction):
             
         return results
 
+def extract_text_from_pdf(pdf_path):
+    """Extract text from a PDF file."""
+    text = ""
+    with open(pdf_path, 'rb') as file:
+        pdf_reader = PyPDF2.PdfReader(file)
+        for page_num in range(len(pdf_reader.pages)):
+            page = pdf_reader.pages[page_num]
+            text += page.extract_text()
+    return text
+
+
+# Read the CV file
+cv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), cv_filename)
+if not os.path.exists(cv_path):
+    logger.error(f"CV file not found at {cv_path}")
+    raise FileNotFoundError(f"CV file not found at {cv_path}")
+cv_text = extract_text_from_pdf(cv_path)
+logger.info(f"Successfully extracted {len(cv_text)} characters from CV")
+
+# Combine CV and job description into a single document
+documents = [cv_text]
+
 # Embedding process
 embed_fn = GeminiEmbeddingFunction()
 embed_fn.document_mode = True
 
-chroma_client = chromadb.Client()
+# PersistentClient and assign it
+chroma_client = chromadb.PersistentClient(path="my_chroma_db")
+
+# Optional: print the resolved absolute path
+print("------ Path to my DB ----->", os.path.abspath("my_chroma_db"))
+
 db = chroma_client.get_or_create_collection(name="resumeDB", embedding_function=embed_fn)
-
-DOCUMENT1 = "Operating the Climate Control System  Your Googlecar has a climate control system that allows you to adjust the temperature and airflow in the car. To operate the climate control system, use the buttons and knobs located on the center console.  Temperature: The temperature knob controls the temperature inside the car. Turn the knob clockwise to increase the temperature or counterclockwise to decrease the temperature. Airflow: The airflow knob controls the amount of airflow inside the car. Turn the knob clockwise to increase the airflow or counterclockwise to decrease the airflow. Fan speed: The fan speed knob controls the speed of the fan. Turn the knob clockwise to increase the fan speed or counterclockwise to decrease the fan speed. Mode: The mode button allows you to select the desired mode. The available modes are: Auto: The car will automatically adjust the temperature and airflow to maintain a comfortable level. Cool: The car will blow cool air into the car. Heat: The car will blow warm air into the car. Defrost: The car will blow warm air onto the windshield to defrost it."
-
-documents = [DOCUMENT1]
 
 db.add(documents=documents, ids=[str(i) for i in range(len(documents))])
 
 print("Here is my collections in DB :", db.count())
 
-results = db.query(
-    query_texts=["=========="],
-    n_results=2
-)
-print("Result from the Chroma DB :", results)
 # ============================= END ===========================
 
 # Since there is no cache for example like a redis to store the CV data, we will read it from the file each time and pass it to the model
@@ -197,35 +215,36 @@ def health_check():
         'origins_allowed': cors_headers['origins']
     })
 
-@app.route('/api/get-cv', methods=['GET', 'OPTIONS'])
-def get_cv():
-    """Endpoint to read CV from PDF file"""
-    if request.method == 'OPTIONS':
-        # Handle preflight request
-        return '', 204
+# This has been commented out as now i am using a RAG to reference the CV data
+# @app.route('/api/get-cv', methods=['GET', 'OPTIONS'])
+# def get_cv():
+#     """Endpoint to read CV from PDF file"""
+#     if request.method == 'OPTIONS':
+#         # Handle preflight request
+#         return '', 204
     
-    logger.info("CV request received")
-    cv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), cv_filename)
-    logger.info("~~~~~~~~~~~~", cv_path)
-    try:
-        if not os.path.exists(cv_path):
-            logger.error(f"CV file not found at {cv_path}")
-            return jsonify({'error': f'CV file not found. Please ensure {cv_filename} is in the root directory.'}), 404
+#     logger.info("CV request received")
+#     cv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), cv_filename)
+#     logger.info("~~~~~~~~~~~~", cv_path)
+#     try:
+#         if not os.path.exists(cv_path):
+#             logger.error(f"CV file not found at {cv_path}")
+#             return jsonify({'error': f'CV file not found. Please ensure {cv_filename} is in the root directory.'}), 404
         
-        # Extract text from PDF
-        cv_text = ""
-        with open(cv_path, 'rb') as file:
-            pdf_reader = PyPDF2.PdfReader(file)
-            for page_num in range(len(pdf_reader.pages)):
-                page = pdf_reader.pages[page_num]
-                cv_text += page.extract_text()
+#         # Extract text from PDF
+#         cv_text = ""
+#         with open(cv_path, 'rb') as file:
+#             pdf_reader = PyPDF2.PdfReader(file)
+#             for page_num in range(len(pdf_reader.pages)):
+#                 page = pdf_reader.pages[page_num]
+#                 cv_text += page.extract_text()
         
-        logger.info(f"Successfully extracted {len(cv_text)} characters from CV")
-        return jsonify({'content': cv_text})
+#         logger.info(f"Successfully extracted {len(cv_text)} characters from CV")
+#         return jsonify({'content': cv_text})
     
-    except Exception as e:
-        logger.exception(f"Error reading CV: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+#     except Exception as e:
+#         logger.exception(f"Error reading CV: {str(e)}")
+#         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/cover-letter', methods=['POST', 'OPTIONS'])
 def generate_cover_letter():
