@@ -40,6 +40,8 @@ logger.info("Configuring Gemini AI...")
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel(model_name="gemini-2.0-flash")
 
+# Since there is no cache for example like a redis to store the CV data, we will read it from the file each time and pass it to the model
+# There is no explicit context window being defined in the technical sense.
 @app.route('/api/chat', methods=['POST', 'OPTIONS'])
 def cover_letter():
     if request.method == 'OPTIONS':
@@ -64,7 +66,7 @@ def cover_letter():
         
         # Set up the model configuration
         generation_config = {
-            "max_output_tokens": 1024,
+            "max_output_tokens": 1024, # 1024 tokens is approximately 800 words
             "temperature": 0.2,
             "top_p": 0.90
         }
@@ -117,7 +119,7 @@ def cover_letter():
         else:
             response_text = str(response)
             
-        logger.info(f"AI response (truncated): {response_text[:100]}...")
+        # logger.info(f"AI response (truncated): {response_text[:100]}...")
         
         return jsonify({'response': response_text})
     except Exception as e:
