@@ -1,6 +1,8 @@
+import google.generativeai as genai
+from google.api_core import retry
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from google import generativeai as genai
+from chromadb import Documents, EmbeddingFunction, Embeddings, chromadb
 import logging
 import os
 import PyPDF2
@@ -37,8 +39,62 @@ logger.info(f"Using CV filename: {cv_filename}")
 
 # Initialize Gemini AI with your API key
 logger.info("Configuring Gemini AI...")
+
+# Step 1: Authenticate
 genai.configure(api_key=api_key)
+
+# Step 2: Create a model client
 model = genai.GenerativeModel(model_name="gemini-2.0-flash")
+
+# ======================= RAG Implementation ==================
+# Define a helper to retry when per-minute quota is reached.
+is_retriable = lambda e: (isinstance(e, genai.errors.APIError) and e.code in {429, 503})
+
+class GeminiEmbeddingFunction(EmbeddingFunction):
+    # Specify whether to generate embeddings for documents, or queries
+    document_mode = True
+
+    @retry.Retry(predicate=is_retriable)
+    def __call__(self, input: Documents) -> Embeddings:
+        embedding_task = "retrieval_document" if self.document_mode else "retrieval_query"
+
+        results = []
+        
+        # Handle single string or list input
+        texts = [input] if isinstance(input, str) else input
+        
+        for text in texts:
+            response = genai.embed_content(
+                model="text-embedding-004",
+                content=text,
+                task_type=embedding_task
+            )
+            # The response is a dictionary with an "embedding" key
+            results.append(response["embedding"])
+            
+        return results
+
+# Embedding process
+embed_fn = GeminiEmbeddingFunction()
+embed_fn.document_mode = True
+
+chroma_client = chromadb.Client()
+db = chroma_client.get_or_create_collection(name="resumeDB", embedding_function=embed_fn)
+
+DOCUMENT1 = "Operating the Climate Control System  Your Googlecar has a climate control system that allows you to adjust the temperature and airflow in the car. To operate the climate control system, use the buttons and knobs located on the center console.  Temperature: The temperature knob controls the temperature inside the car. Turn the knob clockwise to increase the temperature or counterclockwise to decrease the temperature. Airflow: The airflow knob controls the amount of airflow inside the car. Turn the knob clockwise to increase the airflow or counterclockwise to decrease the airflow. Fan speed: The fan speed knob controls the speed of the fan. Turn the knob clockwise to increase the fan speed or counterclockwise to decrease the fan speed. Mode: The mode button allows you to select the desired mode. The available modes are: Auto: The car will automatically adjust the temperature and airflow to maintain a comfortable level. Cool: The car will blow cool air into the car. Heat: The car will blow warm air into the car. Defrost: The car will blow warm air onto the windshield to defrost it."
+
+documents = [DOCUMENT1]
+
+db.add(documents=documents, ids=[str(i) for i in range(len(documents))])
+
+print("Here is my collections in DB :", db.count())
+
+results = db.query(
+    query_texts=["=========="],
+    n_results=2
+)
+print("Result from the Chroma DB :", results)
+# ============================= END ===========================
 
 # Since there is no cache for example like a redis to store the CV data, we will read it from the file each time and pass it to the model
 # There is no explicit context window being defined in the technical sense.
