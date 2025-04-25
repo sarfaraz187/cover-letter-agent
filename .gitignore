@@ -47,4 +47,4 @@ Thumbs.db
 *.pdf
 cv.pdf
 
-/chroma_db
+/flask-backend/chroma_db

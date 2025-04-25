@@ -101,10 +101,10 @@ embed_fn = GeminiEmbeddingFunction()
 embed_fn.document_mode = True
 
 # PersistentClient and assign it
-chroma_client = chromadb.PersistentClient(path="chroma_db")
+chroma_client = chromadb.PersistentClient(path=os.path.join('flask-backend', "chroma_db"))
 
 # Optional: print the resolved absolute path
-print("------ Path to my DB ----->", os.path.abspath("chroma_db"))
+print("------ Path to my DB ----->", os.path.abspath(os.path.join('flask-backend', "chroma_db")))
 
 db = chroma_client.get_or_create_collection(name="resumeDB", embedding_function=embed_fn)
 
@@ -141,7 +141,7 @@ def cover_letter():
         # Set up the model configuration
         generation_config = {
             "max_output_tokens": 1024, # 1024 tokens is approximately 800 words
-            "temperature": 0.2,
+            "temperature": 0.4,
             "top_p": 0.90
         }
         
