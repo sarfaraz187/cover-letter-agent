@@ -2,11 +2,10 @@ import google.generativeai as genai
 from google.api_core import retry
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from chromadb import Documents, EmbeddingFunction, Embeddings, chromadb
 import logging
 import os
-import PyPDF2
 from dotenv import load_dotenv
+from embedder import embed_cv_into_chroma
 
 # Load environment variables from .env file
 load_dotenv()
@@ -16,6 +15,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+# Step 2: Create a model client
+model = genai.GenerativeModel(model_name="gemini-2.0-flash")
 
 # Configure CORS with explicit settings
 cors_headers = {
@@ -33,86 +35,11 @@ if not api_key:
     logger.error("No API key found. Please set the GOOGLE_API_KEY environment variable.")
     raise ValueError("No API key found. Please set the GOOGLE_API_KEY environment variable.")
 
-# Get CV filename from environment variable or use default
-cv_filename = os.getenv('CV_FILENAME', 'cv.pdf')
-logger.info(f"Using CV filename: {cv_filename}")
-
-# Initialize Gemini AI with your API key
-logger.info("Configuring Gemini AI...")
-
 # Step 1: Authenticate
 genai.configure(api_key=api_key)
 
-# Step 2: Create a model client
-model = genai.GenerativeModel(model_name="gemini-2.0-flash")
-
-# ======================= RAG Implementation ==================
-# Define a helper to retry when per-minute quota is reached.
-is_retriable = lambda e: (isinstance(e, genai.errors.APIError) and e.code in {429, 503})
-
-class GeminiEmbeddingFunction(EmbeddingFunction):
-    # Specify whether to generate embeddings for documents, or queries
-    document_mode = True
-
-    @retry.Retry(predicate=is_retriable)
-    def __call__(self, input: Documents) -> Embeddings:
-        embedding_task = "retrieval_document" if self.document_mode else "retrieval_query"
-
-        results = []
-        
-        # Handle single string or list input
-        texts = [input] if isinstance(input, str) else input
-        
-        for text in texts:
-            response = genai.embed_content(
-                model="text-embedding-004",
-                content=text,
-                task_type=embedding_task
-            )
-            # The response is a dictionary with an "embedding" key
-            results.append(response["embedding"])
-            
-        return results
-
-def extract_text_from_pdf(pdf_path):
-    """Extract text from a PDF file."""
-    text = ""
-    with open(pdf_path, 'rb') as file:
-        pdf_reader = PyPDF2.PdfReader(file)
-        for page_num in range(len(pdf_reader.pages)):
-            page = pdf_reader.pages[page_num]
-            text += page.extract_text()
-    return text
-
-
-# Read the CV file
-cv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), cv_filename)
-if not os.path.exists(cv_path):
-    logger.error(f"CV file not found at {cv_path}")
-    raise FileNotFoundError(f"CV file not found at {cv_path}")
-cv_text = extract_text_from_pdf(cv_path)
-logger.info(f"Successfully extracted {len(cv_text)} characters from CV")
-
-# Combine CV and job description into a single document
-documents = [cv_text]
-
-# Embedding process
-embed_fn = GeminiEmbeddingFunction()
-embed_fn.document_mode = True
-
-# PersistentClient and assign it
-chroma_client = chromadb.PersistentClient(path=os.path.join('flask-backend', "chroma_db"))
-
-# Optional: print the resolved absolute path
-print("------ Path to my DB ----->", os.path.abspath(os.path.join('flask-backend', "chroma_db")))
-
-db = chroma_client.get_or_create_collection(name="resumeDB", embedding_function=embed_fn)
-
-db.add(documents=documents, ids=[str(i) for i in range(len(documents))])
-
-print("Here is my collections in DB :", db.count())
-
-# ============================= END ===========================
+# Embed CV automatically when server starts
+embed_cv_into_chroma()
 
 # Since there is no cache for example like a redis to store the CV data, we will read it from the file each time and pass it to the model
 # There is no explicit context window being defined in the technical sense.
