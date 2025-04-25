@@ -101,10 +101,10 @@ embed_fn = GeminiEmbeddingFunction()
 embed_fn.document_mode = True
 
 # PersistentClient and assign it
-chroma_client = chromadb.PersistentClient(path="my_chroma_db")
+chroma_client = chromadb.PersistentClient(path="chroma_db")
 
 # Optional: print the resolved absolute path
-print("------ Path to my DB ----->", os.path.abspath("my_chroma_db"))
+print("------ Path to my DB ----->", os.path.abspath("chroma_db"))
 
 db = chroma_client.get_or_create_collection(name="resumeDB", embedding_function=embed_fn)
 
