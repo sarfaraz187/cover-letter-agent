@@ -1,4 +1,5 @@
 import os
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from chromadb import Documents, EmbeddingFunction, Embeddings
 from chromadb import chromadb
 from google.api_core import retry
@@ -28,7 +29,21 @@ class GeminiEmbeddingFunction(EmbeddingFunction):
             results.append(response["embedding"])
         return results
 
-def embed_cv_into_chroma(cv_filename="cv.pdf", collection_name="resumeDB"):
+def chunk_cv_content(cv_content):
+    """Split CV content into logical chunks with overlap"""
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=400,
+        chunk_overlap=50,
+        length_function=len,
+        separators=["\n\n", "\n", " ", ""]
+    )
+    
+    chunks = text_splitter.create_documents([cv_content], metadatas=[{"source": "cv"}])
+    
+    print(f"Split CV into {len(chunks)} chunks")
+    return chunks
+
+def create_embeddings_and_store(cv_filename="cv.pdf", collection_name="resumeDB"):
     # Extract CV text
     cv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), cv_filename)
     if not os.path.exists(cv_path):
