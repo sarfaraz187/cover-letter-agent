@@ -43,17 +43,8 @@ def chunk_cv_content(cv_content):
     print(f"Split CV into {len(chunks)} chunks")
     return chunks
 
-def create_embeddings_and_store(cv_filename="cv.pdf", collection_name="resumeDB"):
-    # Extract CV text
-    cv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), cv_filename)
-    if not os.path.exists(cv_path):
-        logger.error(f"CV file not found at {cv_path}")
-        raise FileNotFoundError(f"CV file not found at {cv_path}")
-
-    cv_text = extract_text_from_pdf(cv_path)
-    logger.info(f"Extracted {len(cv_text)} characters from CV")
-
-    documents = [cv_text]
+def create_embeddings_and_store(chunks, collection_name="resumeDB"):
+    documents = chunks
     embed_fn = GeminiEmbeddingFunction()
     embed_fn.document_mode = True
 
@@ -62,6 +53,105 @@ def create_embeddings_and_store(cv_filename="cv.pdf", collection_name="resumeDB"
     chroma_client = chromadb.PersistentClient(path=chroma_path)
     logger.info(f"Chroma DB path: {os.path.abspath(chroma_path)}")
 
-    db = chroma_client.get_or_create_collection(name=collection_name, embedding_function=embed_fn)
-    db.add(documents=documents, ids=[str(i) for i in range(len(documents))])
-    logger.info(f"Documents embedded. Collection now has {db.count()} items.")
+    # Create a collection with the embedding function
+    try:
+        # Delete the collection if it already exists
+        chroma_client.delete_collection(collection_name)
+        print(f"Deleted existing collection '{collection_name}'")
+    except:
+        pass
+
+    # Create a new collection
+    collection = chroma_client.create_collection(
+        name=collection_name, 
+        embedding_function=embed_fn
+    )
+    logger.info(f"Created collection '{collection_name}'")
+
+    # Prepare documents for ChromaDB
+    documents = []
+    metadatas = []
+    ids = []
+    
+    for i, chunk in enumerate(chunks):
+        documents.append(chunk.page_content)
+        metadatas.append({"section": identify_cv_section(chunk.page_content)})
+        ids.append(f"chunk_{i}")
+    
+    # Add documents to the collection
+    collection.add(
+        documents=documents,
+        metadatas=metadatas,
+        ids=ids
+    )
+
+    print(f"Added {len(documents)} documents to ChromaDB collection '{collection_name}'")
+    return collection
+
+def identify_cv_section(text):
+    """Identify which section of the CV this chunk belongs to"""
+    text_lower = text.lower()
+    
+    if any(keyword in text_lower for keyword in ["work experience", "software developer", "front-end"]):
+        return "work_experience"
+    elif any(keyword in text_lower for keyword in ["education", "university", "college", "m.eng", "b.tech"]):
+        return "education"
+    elif any(keyword in text_lower for keyword in ["skill", "react", "javascript", "typescript", "python"]):
+        return "skills"
+    elif any(keyword in text_lower for keyword in ["project", "assembly end game", "cover letter ai"]):
+        return "projects"
+    elif any(keyword in text_lower for keyword in ["summary", "passionate"]):
+        return "summary"
+    elif any(keyword in text_lower for keyword in ["contact", "email", "phone", "+49"]):
+        return "contact"
+    else:
+        return "other"
+    
+def query_collection(collection, query_text, n_results=3, filter_section=None):
+    """Query the collection for relevant CV sections"""
+    query_params = {
+        "query_texts": [query_text],
+        "n_results": n_results
+    }
+    
+    if filter_section:
+        query_params["where"] = {"section": filter_section}
+    
+    results = collection.query(**query_params)
+    
+    return results
+
+def embed_cv():
+    # Later replace this with the an API where i can upload my CV
+    logger.info("============ Extracting CV text from PDF ============")
+    cv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cv.pdf")
+    if not os.path.exists(cv_path):
+        logger.error(f"CV file not found at {cv_path}")
+        raise FileNotFoundError(f"CV file not found at {cv_path}")
+
+    cv_content = extract_text_from_pdf(cv_path)
+    logger.info(f"Extracted {len(cv_content)} characters from CV")
+
+
+    # Chunk CV content
+    chunks = chunk_cv_content(cv_content)
+    
+    # Create embeddings and store in ChromaDB
+    collection = create_embeddings_and_store(chunks)
+
+    # Example queries for cover letter generation
+    print("\nExample Queries for Cover Letter Agent:")
+    
+    # Query for relevant work experience
+    # print("\n1. Finding relevant work experience for a React developer position:")
+    # results = query_collection(collection, "React developer experience frontend", filter_section="work_experience")
+    # for i, doc in enumerate(results['documents'][0]):
+    #     print(f"\nResult {i+1}:")
+    #     print(doc)
+    
+    # Query for relevant skills
+    print("\n2. Finding relevant technical skills for a fullstack position:")
+    results = query_collection(collection, "fullstack development skills", filter_section="skills")
+    for i, doc in enumerate(results['documents'][0]):
+        print(f"\nResult {i+1}:")
+        print(doc)

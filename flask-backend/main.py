@@ -5,7 +5,7 @@ from flask_cors import CORS
 import logging
 import os
 from dotenv import load_dotenv
-from embedder import create_embeddings_and_store
+from embedder import embed_cv
 
 # Load environment variables from .env file
 load_dotenv()
@@ -39,7 +39,7 @@ if not api_key:
 genai.configure(api_key=api_key)
 
 # Embed CV automatically when server starts
-create_embeddings_and_store()
+# create_embeddings_and_store()
 
 @app.route('/api/cover-letter', methods=['POST', 'OPTIONS'])
 def generate_cover_letter():
@@ -301,5 +301,6 @@ def after_request(response):
     return response
 
 if __name__ == '__main__':
+    embed_cv()
     logger.info("Starting Flask API server...")
     app.run(debug=True, port=5001, host='0.0.0.0')
