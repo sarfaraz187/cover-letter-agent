@@ -12,6 +12,14 @@ logger = logging.getLogger(__name__)
 # Define a helper to retry when per-minute quota is reached.
 is_retriable = lambda e: (isinstance(e, genai.errors.APIError) and e.code in {429, 503})
 
+# Setup Chroma DB
+chroma_path = os.path.join('flask-backend', "chroma_db")
+chroma_client = chromadb.PersistentClient(path=chroma_path)
+logger.info(f"Chroma DB path: {os.path.abspath(chroma_path)}")
+
+def get_client():
+    return chroma_client
+    
 class GeminiEmbeddingFunction(EmbeddingFunction):
     document_mode = True
 
@@ -48,10 +56,6 @@ def create_embeddings_and_store(chunks, collection_name="resumeDB"):
     embed_fn = GeminiEmbeddingFunction()
     embed_fn.document_mode = True
 
-    # Setup Chroma DB
-    chroma_path = os.path.join('flask-backend', "chroma_db")
-    chroma_client = chromadb.PersistentClient(path=chroma_path)
-    logger.info(f"Chroma DB path: {os.path.abspath(chroma_path)}")
 
     # Create a collection with the embedding function
     try:
@@ -143,15 +147,15 @@ def embed_cv():
     print("\nExample Queries for Cover Letter Agent:")
     
     # Query for relevant work experience
-    # print("\n1. Finding relevant work experience for a React developer position:")
-    # results = query_collection(collection, "React developer experience frontend", filter_section="work_experience")
-    # for i, doc in enumerate(results['documents'][0]):
-    #     print(f"\nResult {i+1}:")
-    #     print(doc)
-    
-    # Query for relevant skills
-    print("\n2. Finding relevant technical skills for a fullstack position:")
-    results = query_collection(collection, "fullstack development skills", filter_section="skills")
+    print("\n1. Finding relevant work experience for a React developer position:")
+    results = query_collection(collection, "React developer experience frontend", filter_section="work_experience")
     for i, doc in enumerate(results['documents'][0]):
         print(f"\nResult {i+1}:")
         print(doc)
+    
+    # Query for relevant skills
+    # print("\n2. Finding relevant technical skills for a fullstack position:")
+    # results = query_collection(collection, "fullstack development skills", filter_section="skills")
+    # for i, doc in enumerate(results['documents'][0]):
+    #     print(f"\nResult {i+1}:")
+    #     print(doc)

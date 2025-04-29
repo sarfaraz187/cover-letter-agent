@@ -5,7 +5,7 @@ from flask_cors import CORS
 import logging
 import os
 from dotenv import load_dotenv
-from embedder import embed_cv
+from embedder import get_client, embed_cv, query_collection
 
 # Load environment variables from .env file
 load_dotenv()
@@ -177,8 +177,10 @@ def cover_letter():
     
     message = data.get('message', '')
     cv_data = data.get('cv_data', '')
-    is_cover_letter = data.get('is_cover_letter', False)
     
+    logger.info(f"Message: {message}")
+    logger.info(f"CV Data: {cv_data}")
+
     if not message:
         return jsonify({'error': 'No message provided'}), 400
     
@@ -187,44 +189,51 @@ def cover_letter():
         
         # Set up the model configuration
         generation_config = {
-            "max_output_tokens": 1024, # 1024 tokens is approximately 800 words
+            "max_output_tokens": 1048,
             "temperature": 0.4,
             "top_p": 0.90
         }
-        
+
+        # Relevant experience and skills for a {job_title} position at {company_name}.
+        # The job requires: {job_requirements}.        # 
+        query_text = f"""
+
+        """
+
+        chroma_client = get_client()
+        collection = chroma_client.get_collection(name="resumeDB")
+        results = collection.query(query_texts=[query_text], n_results=3)
+        matched_chunks = [doc for doc in results['documents'][0]]
+
         # Prepare content based on request type
-        if is_cover_letter and cv_data:
-            # Create a structured prompt for cover letter generation
-            prompt = f"""
-            I need to write a cover letter for a job application. Here's information about me:
-            
-            My CV/Resume:
-            {cv_data}
-            
-            Job Details:
-            {message}
-            
-            """
-            
-            prompt += """
-            Write a compelling cover letter that:
-            1. Has an attention-grabbing opening
-            2. Highlights my relevant experience from my resume
-            3. Addresses key requirements mentioned in the job description
-            4. Includes a specific example of how I overcame a challenge in a previous role
-            5. Emphasizes my unique selling points 
-            6. Explains why I'm passionate about joining this specific company
-            8. Add a personal touch. 
-            7. Mentions I am available to relocate with a valid work permit and have fluent English and intermediate German
-            8. Limit to 380 words maximum
-            
-            Structure the letter professionally with proper greeting and closing.
-            """
-            
-            contents = prompt
-        else:
-            contents = message
+        # Create a structured prompt for cover letter generation
+        prompt = f"""
+        I need to write a cover letter for a job application. Here's information about me:
         
+        My CV/Resume:
+        {results}
+    
+        Job Details:
+        {message}        
+        """
+
+        prompt += """
+        Write a compelling cover letter that:
+        1. Has an attention-grabbing opening
+        2. Highlights my relevant experience from my resume
+        3. Addresses key requirements mentioned in the job description
+        4. Includes a specific example of how I overcame a challenge in a previous role
+        5. Emphasizes my unique selling points 
+        6. Explains why I'm passionate about joining this specific company
+        8. Add a personal touch. 
+        7. Mentions I am available to relocate with a valid work permit and have fluent English and intermediate German
+        8. Limit to 380 words maximum
+        
+        Structure the letter professionally with proper greeting and closing.
+        """
+        
+        contents = prompt
+    
         # Get a response from Gemini
         response = model.generate_content(
             contents=contents,
@@ -239,9 +248,7 @@ def cover_letter():
             response_text = ' '.join([part.text for part in response.parts if hasattr(part, 'text')])
         else:
             response_text = str(response)
-            
-        # logger.info(f"AI response (truncated): {response_text[:100]}...")
-        
+                    
         return jsonify({'response': response_text})
     except Exception as e:
         logger.exception(f"Error generating response: {str(e)}")
@@ -262,36 +269,36 @@ def health_check():
         'origins_allowed': cors_headers['origins']
     })
 
-# This has been commented out as now i am using a RAG to reference the CV data
-# @app.route('/api/get-cv', methods=['GET', 'OPTIONS'])
-# def get_cv():
-#     """Endpoint to read CV from PDF file"""
-#     if request.method == 'OPTIONS':
-#         # Handle preflight request
-#         return '', 204
-    
-#     logger.info("CV request received")
-#     cv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), cv_filename)
-#     logger.info("~~~~~~~~~~~~", cv_path)
-#     try:
-#         if not os.path.exists(cv_path):
-#             logger.error(f"CV file not found at {cv_path}")
-#             return jsonify({'error': f'CV file not found. Please ensure {cv_filename} is in the root directory.'}), 404
-        
-#         # Extract text from PDF
-#         cv_text = ""
-#         with open(cv_path, 'rb') as file:
-#             pdf_reader = PyPDF2.PdfReader(file)
-#             for page_num in range(len(pdf_reader.pages)):
-#                 page = pdf_reader.pages[page_num]
-#                 cv_text += page.extract_text()
-        
-#         logger.info(f"Successfully extracted {len(cv_text)} characters from CV")
-#         return jsonify({'content': cv_text})
-    
-#     except Exception as e:
-#         logger.exception(f"Error reading CV: {str(e)}")
-#         return jsonify({'error': str(e)}), 500
+# This API will check if the CV is present in the Chroma DB
+@app.route('/api/get-cv', methods=['GET', 'OPTIONS'])
+def get_cv():
+    """Check if embedded CV is present in Chroma DB"""
+    if request.method == 'OPTIONS':
+        return '', 204
+
+    logger.info("CV presence check in ChromaDB initiated")
+
+    try:
+        chroma_client = get_client()
+        collection = chroma_client.get_or_create_collection(name="resumeDB")
+
+        count = collection.count()
+        logger.info(f"Found {count} embedded document(s) in resumeDB")
+
+        if count == 0:
+            return jsonify({'embedded': False, 'message': 'No CV found in Chroma DB'}), 200
+        else:
+            return jsonify({'embedded': True, 'message': f'{count} document(s) found in Chroma DB'}), 200
+
+        # Optional: If you stored with a known ID, you can use .get() instead:
+        # result = collection.get(ids=["cv-main"])
+        # if result["documents"] and result["documents"][0] is not None:
+        #     return jsonify({'embedded': True}), 200
+
+    except Exception as e:
+        logger.exception(f"Error checking Chroma DB: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 
 @app.after_request
 def after_request(response):

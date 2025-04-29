@@ -1,13 +1,14 @@
 // Set the API base URL based on environment
 // Try to use the variable from the root .env file if available
+import { ICvDataResponse } from "../types/index";
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
-
 /**
  * Fetch CV data from the server
  *
  * @returns The CV data as text
  */
-export const fetchCvData = async (): Promise<string> => {
+
+export const fetchCvData = async (): Promise<ICvDataResponse> => {
   try {
     console.log(`API Request - Fetching CV data`);
 
@@ -26,7 +27,7 @@ export const fetchCvData = async (): Promise<string> => {
       throw new Error(data.error || `Error: ${response.status}`);
     }
 
-    return data.content;
+    return data;
   } catch (error) {
     console.error("API Error:", error);
     const errorMessage = error instanceof Error ? error.message : "Failed to fetch CV data. Please try again later.";
@@ -41,7 +42,7 @@ export const fetchCvData = async (): Promise<string> => {
  * @param cvData The user's CV/resume data
  * @returns The generated cover letter
  */
-export const generateCoverLetter = async (jobDescription: string, cvData: string): Promise<string> => {
+export const generateCoverLetter = async (jobDescription: string): Promise<string> => {
   try {
     console.log(`API Request - Generating cover letter...`);
 
@@ -65,7 +66,7 @@ export const generateCoverLetter = async (jobDescription: string, cvData: string
     const response = await fetch(`${API_BASE_URL}/cover-letter`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: jobDescription, cv_data: cvData }),
+      body: JSON.stringify({ message: jobDescription }),
     });
 
     console.log("API Response - Status:", response.status);

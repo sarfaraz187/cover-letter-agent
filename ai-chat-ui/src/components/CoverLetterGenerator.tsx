@@ -4,6 +4,7 @@ import { generateCoverLetterPDF } from "../services/pdfService";
 import FormSection from "./FormSection";
 import CoverLetterOutput from "./CoverLetterOutput";
 import CvErrorAlert from "./CvErrorAlert";
+import { ICvDataResponse } from "../types/index";
 
 const CoverLetterGenerator: React.FC = () => {
   // Form state
@@ -13,7 +14,7 @@ const CoverLetterGenerator: React.FC = () => {
   const [aboutCompany, setAboutCompany] = useState("");
 
   // Content state
-  const [cvContent, setCvContent] = useState("");
+  const [foundEmbeddedCv, setIsCvLoaded] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
   const [editableCoverLetter, setEditableCoverLetter] = useState("");
 
@@ -35,9 +36,9 @@ const CoverLetterGenerator: React.FC = () => {
       setCvError("");
 
       try {
-        const data = await fetchCvData();
-        setCvContent(data);
-        console.log("CV data loaded successfully");
+        const data: ICvDataResponse = await fetchCvData();
+        setIsCvLoaded(data.embedded);
+        console.log("CV data loaded successfully !!!!!!!!!!");
       } catch (err) {
         console.error("CV loading error:", err);
         setCvError(err instanceof Error ? err.message : "Failed to load CV data");
@@ -64,7 +65,7 @@ const CoverLetterGenerator: React.FC = () => {
       return;
     }
 
-    if (!cvContent) {
+    if (!foundEmbeddedCv) {
       setError("CV data is not available. Please refresh the page or contact support.");
       return;
     }
@@ -81,7 +82,7 @@ const CoverLetterGenerator: React.FC = () => {
         Job Description: ${jobDescription}
       `;
 
-      const result = await generateCoverLetter(formattedJobDescription, cvContent);
+      const result = await generateCoverLetter(formattedJobDescription);
       setCoverLetter(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -104,7 +105,7 @@ const CoverLetterGenerator: React.FC = () => {
 
   const handleDownloadPDF = () => {
     if (!coverLetterRef.current || !editableCoverLetter) return;
-    
+
     setDownloadNotification(true);
     generateCoverLetterPDF({ position, companyName, content: editableCoverLetter });
     setTimeout(() => setDownloadNotification(false), 2000);
