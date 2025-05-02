@@ -79,11 +79,11 @@ def generate_cover_letter():
         
         # Create a structured prompt for cover letter generation
         prompt = f"""
-        I need to write a cover letter for a job application. Here's information about me:
+        You are an expert in writing tailored cover letters. Given a resume and a job description, write a customized, professional, and engaging cover letter.
         
-        Example Cover Letter:
-
+        ### Example 1:
         Dear Hiring Team,
+
         When I reduced customer onboarding time by 45% through an intuitive internal application at
         Onestoptransformation, I witnessed firsthand how thoughtful frontend engineering directly impacts user
         experience. This powerful connection between code and human wellbeing aligns perfectly with
@@ -123,26 +123,46 @@ def generate_cover_letter():
         Sincerely,
         Mohammed Sarfaraz
 
-        My CV/Resume:
+        
+        ### Now Your Turn:
+        **Resume:**
         {matched_chunks}
         
-        Job Details:
+        **Job Description (Summary):**
         {message}
         
         """
         
-        prompt += """
-        Write a compelling cover letter that:
-        1. Has an attention-grabbing opening
-        2. Highlights my relevant experience from my resume
-        3. Addresses key requirements mentioned in the job description
-        4. Includes a specific example of how I overcame a challenge in a previous role
-        5. Emphasizes my unique selling points 
-        6. Explains why I'm passionate about joining this specific company
-        7. Mentions I am available to relocate with a valid work permit and have fluent English and intermediate German
-        8. Limit to 350 words maximum
-        
-        Structure the letter professionally with proper greeting and closing.
+        prompt += f"""
+        Write a compelling and concise cover letter (max 450 words).
+
+        It should:
+
+        1. Start with an attention-grabbing and personalized opening
+        2. Highlight my relevant experience from my resume, including:
+            - Work at Learnship GmbH (HALO, Elevate, Solo platforms)
+            - React + TypeScript npm library for MyRA Web at SevenCs
+            - Use of testing frameworks (Testing Library, Cypress)
+        3. Address key job requirements like:
+            - Strong JavaScript/TypeScript and React skills
+            - Writing DRY, maintainable code
+            - Familiarity with Git, HTML, CSS, testing
+        4. Include a concrete example of overcoming a technical challenge (e.g. integrating a third-party mapping library)
+        5. Emphasize my strengths:
+            - Collaborative mindset
+            - Passion for scalable and user-friendly solutions
+            - Growth mindset toward technical leadership
+        6. Explain why I want to join ePages specifically (their mission to empower SMBs, focus on innovation, e-commerce impact)
+        7. Clearly state:
+            - I hold a valid work permit, am available to relocate
+            - Fluent in English, intermediate German
+
+        End professionally with a closing paragraph
+
+        Use this format for the closing:
+
+        Sincerely,
+        Mohammed Sarfaraz
         """
         
         # Get a response from Gemini
