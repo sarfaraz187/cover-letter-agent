@@ -48,3 +48,6 @@ Thumbs.db
 cv.pdf
 
 /flask-backend/chroma_db
+
+# Docker
+.env.docker

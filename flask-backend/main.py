@@ -123,7 +123,6 @@ def generate_cover_letter():
         Sincerely,
         Mohammed Sarfaraz
 
-        
         ### Now Your Turn:
         **Resume:**
         {matched_chunks}
