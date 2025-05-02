@@ -8,4 +8,9 @@ export interface CoverLetterData {
 export interface ApiResponse {
   response: string;
   error?: string;
-} 
+}
+
+export interface ICvDataResponse {
+  embedded: boolean;
+  message: string;
+}

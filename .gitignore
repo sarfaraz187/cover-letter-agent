@@ -46,3 +46,5 @@ Thumbs.db
 # Resume/CV files
 *.pdf
 cv.pdf
+
+/flask-backend/chroma_db
