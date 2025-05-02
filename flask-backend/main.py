@@ -5,7 +5,7 @@ from flask_cors import CORS
 import logging
 import os
 from dotenv import load_dotenv
-from embedder import get_client, embed_cv, query_collection
+from embedder import get_client, embed_cv, query_collection, GeminiEmbeddingFunction
 
 # Load environment variables from .env file
 load_dotenv()
@@ -38,9 +38,6 @@ if not api_key:
 # Step 1: Authenticate
 genai.configure(api_key=api_key)
 
-# Embed CV automatically when server starts
-# create_embeddings_and_store()
-
 @app.route('/api/cover-letter', methods=['POST', 'OPTIONS'])
 def generate_cover_letter():
     """Dedicated endpoint for cover letter generation"""
@@ -55,13 +52,20 @@ def generate_cover_letter():
     logger.info(f"Request data: {data}")
     
     message = data.get('message', '')
-    cv_data = data.get('cv_data', '')
-    
+
+    logger.info(f"Message: {message}")
+    # Relevant experience and skills for a {job_title} position at {company_name}.
+    # The job requires: {job_requirements}.
+    chroma_client = get_client()
+    embedding_function = GeminiEmbeddingFunction() 
+    collection = chroma_client.get_or_create_collection(name="resumeDB", embedding_function=embedding_function)
+    results = query_collection(collection, message)
+    matched_chunks = [doc for doc in results['documents'][0]]
+
+    logger.info(f"Matched chunks: {matched_chunks}")
+
     if not message:
         return jsonify({'error': 'No job details provided'}), 400
-    
-    if not cv_data:
-        return jsonify({'error': 'No CV data provided'}), 400
     
     try:
         logger.info(f"Processing cover letter request")
@@ -120,7 +124,7 @@ def generate_cover_letter():
         Mohammed Sarfaraz
 
         My CV/Resume:
-        {cv_data}
+        {matched_chunks}
         
         Job Details:
         {message}
@@ -194,24 +198,12 @@ def cover_letter():
             "top_p": 0.90
         }
 
-        # Relevant experience and skills for a {job_title} position at {company_name}.
-        # The job requires: {job_requirements}.        # 
-        query_text = f"""
-
-        """
-
-        chroma_client = get_client()
-        collection = chroma_client.get_collection(name="resumeDB")
-        results = collection.query(query_texts=[query_text], n_results=3)
-        matched_chunks = [doc for doc in results['documents'][0]]
-
         # Prepare content based on request type
         # Create a structured prompt for cover letter generation
         prompt = f"""
         I need to write a cover letter for a job application. Here's information about me:
         
         My CV/Resume:
-        {results}
     
         Job Details:
         {message}        
