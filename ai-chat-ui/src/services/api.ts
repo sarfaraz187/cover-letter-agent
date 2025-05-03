@@ -1,12 +1,7 @@
 // Set the API base URL based on environment
 // Try to use the variable from the root .env file if available
-<<<<<<< HEAD
 import { ICvDataResponse } from "../types/index";
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
-=======
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
-
->>>>>>> b143ec9 (commented out the API to fetch cv_data and moved it to be stored in the vector DB)
 /**
  * Fetch CV data from the server
  *
@@ -47,11 +42,7 @@ export const fetchCvData = async (): Promise<ICvDataResponse> => {
  * @param cvData The user's CV/resume data
  * @returns The generated cover letter
  */
-<<<<<<< HEAD
 export const generateCoverLetter = async (jobDescription: string): Promise<string> => {
-=======
-export const generateCoverLetter = async (jobDescription: string, cvData: string): Promise<string> => {
->>>>>>> b143ec9 (commented out the API to fetch cv_data and moved it to be stored in the vector DB)
   try {
     console.log(`API Request - Generating cover letter...`);
 
@@ -75,11 +66,7 @@ export const generateCoverLetter = async (jobDescription: string, cvData: string
     const response = await fetch(`${API_BASE_URL}/cover-letter`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-<<<<<<< HEAD
       body: JSON.stringify({ message: jobDescription }),
-=======
-      body: JSON.stringify({ message: jobDescription, cv_data: cvData }),
->>>>>>> b143ec9 (commented out the API to fetch cv_data and moved it to be stored in the vector DB)
     });
 
     console.log("API Response - Status:", response.status);
