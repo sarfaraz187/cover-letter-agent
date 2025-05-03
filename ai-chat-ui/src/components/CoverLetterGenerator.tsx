@@ -3,7 +3,7 @@ import { generateCoverLetter, fetchCvData } from "../services/api";
 import { generateCoverLetterPDF } from "../services/pdfService";
 import FormSection from "./FormSection";
 import CoverLetterOutput from "./CoverLetterOutput";
-import CvErrorAlert from "./CvErrorAlert";
+import ErrorAlert from "./CvErrorAlert";
 import { ICvDataResponse } from "../types/index";
 
 const CoverLetterGenerator: React.FC = () => {
@@ -115,7 +115,7 @@ const CoverLetterGenerator: React.FC = () => {
     <div className="flex flex-col h-full max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold mb-5 text-gray-800">AI Cover Letter Generator</h1>
 
-      <CvErrorAlert error={cvError} />
+      <ErrorAlert error={cvError} />
 
       <div className="grid grid-cols-1 md:grid-cols-10 gap-6 mb-2 min-h-[600px]">
         <div className="md:col-span-4 flex flex-col">
